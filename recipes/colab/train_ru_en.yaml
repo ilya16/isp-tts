@@ -1,0 +1,62 @@
+base: acoustic/ru_en.yaml
+
+_general_:
+  device: cuda:0
+  seed: 23
+
+  _dirname_: /content/results
+  _label_: ???  # voice_ru_en
+
+  resume_from_checkpoint: /content/acoustic_ru_en.pt
+  warm_start: true
+  finetune_layers: ["aligner", "temporal_adaptor", "decoder"]
+
+
+dataset:
+  root: ???  # /content/voice
+
+  _train_:
+    meta_name: ???
+
+  _eval_:
+    meta_name: ???
+
+  pitch_from_disk: false
+
+  meta_column_names: [audio_path, text]
+  text_length_limits: [0, 300]
+  audio_length_limits: [0, 20]
+
+
+model:
+  encoder:
+    transformer_layer:
+      attention:
+        dropout: 0.3
+      feed_forward:
+        dropout: 0.3
+
+
+trainer:
+  epochs: 100
+  batch_size: 24
+  eval_batch_size: 48
+
+  eval_strategy: steps
+  eval_steps: 50
+
+  project_name: isp-tts-test  # wandb project name
+  accelerator:
+    log_with: [tensorboard]
+#    log_with: [wandb, tensorboard]
+  tracker_kwargs:
+    tensorboard: {}
+    wandb:
+      name: ${version:}/${date:}/${_general_._label_}
+
+  optimization:
+    optimizer:
+      lr: !!float 1e-4
+    lr_scheduler:
+      _target_: exponential
+      gamma: 0.995

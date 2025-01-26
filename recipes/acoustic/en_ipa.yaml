@@ -1,0 +1,7 @@
+base: acoustic/core.yaml
+
+dataset:
+  text:
+    charset: ["<pad>", "</s>", "#punct", "#en", "#ipa_ph"]
+    phonemizer: true
+    mask_phonemes: 0.2

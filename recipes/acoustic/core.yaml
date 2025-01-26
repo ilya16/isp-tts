@@ -1,0 +1,198 @@
+base: default.yaml
+
+_general_:
+  device: cuda:0
+  seed: 23
+
+  _dirname_: results
+  _label_: ???
+  _model_label_: ""
+
+  resume_from_checkpoint:
+  warm_start: false
+
+
+dataset:
+  _name_: AcousticDataset
+
+  root: ???
+
+  _train_:
+    meta_name: ???
+
+  _eval_:
+    meta_name: ???
+
+  stats:
+    pitch:
+      mean: 166.6177
+      std: 62.5423
+  pitch_from_disk: false
+
+  meta_column_names: [audio_path, text]
+  text_length_limits: [0, 300]
+  audio_length_limits: [0, 20]
+
+  text:
+    charset: ["<pad>", "</s>", "#punct", "#en", "#ipa_ph"]
+    phonemizer: true
+    mask_phonemes: 0.2
+    word_level_prob: true
+
+  audio:
+    sample_rate: 22050
+
+  spec:
+    n_fft: 1024
+    hop_length: 256
+    win_length: 1024
+    pad:
+    power: 1.
+    normalized: false
+    center: false
+
+  mel_scale:
+    sample_rate: ${dataset.audio.sample_rate}
+    n_fft: ${dataset.spec.n_fft}
+    n_mels: 80
+    f_min: 0.0
+    f_max: 8000.0
+    norm: slaney
+    mel_scale: slaney
+
+  pitch:
+    _disable_: false
+    sample_rate: ${dataset.audio.sample_rate}
+    hop_length: ${dataset.spec.hop_length}
+    win_length: ${dataset.spec.win_length}
+    f_min: 40
+    f_max: 800
+    method: torch-yin
+    threshold: 0.15
+    norm: standard
+    device:
+
+  energy:
+    _disable_: false
+
+  speaker:
+
+
+collator:
+  _name_: AcousticCollator
+
+
+model:
+  _name_: AcousticModel
+  _version_: 0.1.0
+
+  _defaults_:
+    dim: 384
+    activation: gelu
+    embedding_policy: sum
+
+  mel_dim: ${dataset.mel_scale.n_mels}
+  text_dim: ${model._defaults_.dim}
+
+  encoder:
+    dim: ${model._defaults_.dim}
+    depth: 6
+
+    transformer_layer:
+      attention:
+        heads: 6
+        head_dim: 64
+        dropout: 0.1
+        one_kv_head: true
+        alibi_pos_bias: true
+      feed_forward:
+        inner_dim: 1536
+        dropout: 0.1
+        activation: ${model._defaults_.activation}
+      pre_norm: true
+
+  decoder:
+    dim: ${model._defaults_.dim}
+    depth: 6
+    transformer_layer: ${model.encoder.transformer_layer}
+
+  temporal_adaptor:
+    predictor:
+      time_embedding_dim: 32
+
+      transformer:
+        dim: 256
+        depth: 3
+
+        transformer_layer:
+          attention:
+            heads: 4
+            head_dim: 64
+            dropout: 0.3
+            one_kv_head: true
+            alibi_pos_bias: true
+          feed_forward:
+            inner_dim: 1024
+            dropout: 0.3
+            activation: ${model._defaults_.activation}
+          pre_norm: true
+
+    embedding:
+      transformer:
+        dim: 256
+        depth: 1
+        transformer_layer: ${model.temporal_adaptor.predictor.transformer.transformer_layer}
+
+    pitch: true
+    energy: true
+    soft_duration: true
+
+  aligner:
+    attention_dim: 128
+    key_kernel_size: 5
+    query_kernel_size: [5, 5]
+    dropout: 0.1
+    normalization: instance
+    activation: ${model._defaults_.activation}
+
+  num_speakers:
+
+
+criterion:
+  _name_: AcousticModelLoss
+
+  mel_loss:
+    weight: 1.
+
+  attention_loss:
+    weight: 1.
+
+  attention_kl_loss:
+    weight: 1.
+
+
+evaluator:
+  _name_: AcousticModelEvaluator
+
+
+trainer:
+  epochs: 100
+  batch_size: 64
+  eval_batch_size: 128
+
+  eval_strategy: steps
+  eval_steps: 50
+
+  log_steps: 5
+
+  progress_metrics: ["loss"]
+
+  save_rewrite_checkpoint: true
+
+  metric_for_best_model: loss
+  metric_maximize: false
+
+#  callbacks:
+#    images:
+#      _name_: AcousticModelImageCallback
+#      accelerator: true

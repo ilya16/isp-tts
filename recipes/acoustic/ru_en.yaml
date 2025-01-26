@@ -1,0 +1,6 @@
+base: acoustic/core.yaml
+
+dataset:
+  text:
+    charset: ["<pad>", "</s>", "#punct", "#marks", "#ru", "#en"]
+    phonemizer: false
