@@ -7,9 +7,9 @@ _general_:
   _dirname_: /content/results
   _label_: voice_ru_en  # name for the experiment
 
-  resume_from_checkpoint: /content/acoustic_ru_en.pt
+  resume_from_checkpoint: /content/acoustic_en_ipa.pt
   warm_start: true
-  finetune_layers: ["aligner", "temporal_adaptor", "decoder"]  # freeze text layers to have multi-language model
+  finetune_layers: []
 
 
 dataset:

@@ -163,7 +163,6 @@ class Trainer:
         for name, config in callbacks.items():
             self.add_callback(CallbacksRegistry.instantiate(config))
 
-        print(self.callback_handler.callbacks)
         self.add_callback(PrinterCallback if self.config.disable_tqdm else DEFAULT_PROGRESS_CALLBACK)
         logger.info("Built CallbackHandler")
 

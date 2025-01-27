@@ -183,10 +183,11 @@ trainer:
   eval_strategy: steps
   eval_steps: 50
 
-  log_steps: 5
+  log_steps: 1
 
   progress_metrics: ["loss"]
 
+  save_best_only: false
   save_rewrite_checkpoint: true
 
   metric_for_best_model: loss
