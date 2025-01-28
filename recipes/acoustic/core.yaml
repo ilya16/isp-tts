@@ -192,8 +192,3 @@ trainer:
 
   metric_for_best_model: loss
   metric_maximize: false
-
-#  callbacks:
-#    images:
-#      _name_: AcousticModelImageCallback
-#      accelerator: true

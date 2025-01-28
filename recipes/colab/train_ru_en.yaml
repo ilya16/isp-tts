@@ -9,7 +9,7 @@ _general_:
 
   resume_from_checkpoint: /content/acoustic_ru_en.pt
   warm_start: true
-  finetune_layers: ["aligner", "temporal_adaptor", "decoder"]  # freeze text layers to have multi-language model
+  finetune_layers: ["aligner", "temporal_adaptor", "decoder", "to_mel"]  # freeze text layers to have multi-language model
 
 
 dataset:

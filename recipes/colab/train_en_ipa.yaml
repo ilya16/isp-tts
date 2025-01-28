@@ -9,7 +9,7 @@ _general_:
 
   resume_from_checkpoint: /content/acoustic_en_ipa.pt
   warm_start: true
-  finetune_layers: []
+  finetune_layers: []  # empty equals to all
 
 
 dataset:
