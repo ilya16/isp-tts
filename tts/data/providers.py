@@ -204,7 +204,7 @@ class AudioProvider(_Provider):
         audio, rate = torchaudio.load(file_path, backend="soundfile")
 
         if rate != self.sample_rate:
-            audio = T.Resample(audio, self.sample_rate, dtype=audio.dtype)(audio)
+            audio = T.Resample(rate, self.sample_rate, dtype=audio.dtype)(audio)
 
         if audio.shape[0] != 1:
             audio = audio.mean(0)
